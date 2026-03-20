@@ -1,0 +1,83 @@
+# ===== OS files (macOS) =====
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# ===== Editor / IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.nox/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+
+# ===== Jupyter =====
+.ipynb_checkpoints/
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Experiment tracking =====
+runs/
+wandb/
+mlruns/
+lightning_logs/
+
+# ===== Training outputs =====
+checkpoints/
+ckpt/
+weights/
+results/
+outputs/
+predictions/
+
+# ===== Data artifacts =====
+# Keep this if datasets are downloaded/generated locally.
+data/
+datasets/
+
+# ===== Model artifacts =====
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.engine
+
+# ===== Environment files =====
+.env
+.env.*
+
+# ===== Optional lock files (uncomment if needed) =====
+# poetry.lock
+# Pipfile.lock
