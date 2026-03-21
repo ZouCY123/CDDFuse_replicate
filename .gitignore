@@ -77,6 +77,10 @@ data/
 .env
 .env.*
 
+# ===== test files =====
+tests/
+test_*.py
+
 # ===== Optional lock files (uncomment if needed) =====
 # poetry.lock
 # Pipfile.lock
