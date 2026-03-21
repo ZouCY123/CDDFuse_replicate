@@ -1,0 +1,13 @@
+# torch 通过 scripts/setup.sh 单独安装，不列在这里
+einops==0.4.1
+kornia==0.2.0
+numpy==1.21.5
+opencv-python==4.5.3.56
+scikit-image==0.19.2
+scikit-learn==1.1.3
+scipy==1.7.3
+tensorboardX==2.5.1
+timm==0.4.12
+h5py
+PyYAML>=6.0
+tqdm
