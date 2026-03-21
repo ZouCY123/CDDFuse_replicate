@@ -65,7 +65,6 @@ predictions/
 # ===== Data artifacts =====
 # Keep this if datasets are downloaded/generated locally.
 data/
-datasets/
 
 # ===== Model artifacts =====
 *.pt
