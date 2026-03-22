@@ -6,6 +6,7 @@ layers/ 公开接口
 """
 
 from .norm import LayerNorm
+from .feedforward import FeedForward
 
 
-__all__ = ['LayerNorm']
+__all__ = ['LayerNorm', 'FeedForward']
