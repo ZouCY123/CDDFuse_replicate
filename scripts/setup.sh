@@ -8,7 +8,7 @@
 set -e
 
 ENV_NAME="${1:-cddfuse-env}"
-PYTHON_VER="3.8.10"
+PYTHON_VER="3.11"
 
 # ── 1. 检测 CUDA 版本 ─────────────────────────────────────
 echo ">>> 检测 CUDA 版本..."
