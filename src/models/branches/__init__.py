@@ -4,6 +4,7 @@ branches/ 公开接口
 """
 
 from .base_branch import BaseFeatureExtraction
+from .detail_branch import DetailFeatureExtraction
 
 
-__all__ = ['BaseFeatureExtraction']
+__all__ = ['BaseFeatureExtraction', 'DetailFeatureExtraction']
