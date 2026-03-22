@@ -77,3 +77,76 @@ class Restormer_Encoder(nn.Module):
         detail_feature = self.detailFeature(out_enc)  # 高频
 
         return base_feature, detail_feature, out_enc
+    
+
+class Restormer_Decoder(nn.Module):
+    """
+    解码器：(base_feature, detail_feature) → 融合图像
+
+    Args:
+        out_channels:         输出通道数，默认 1（灰度）
+        dim:                  特征维度，默认 64
+        num_blocks:           TransformerBlock 数量
+        heads:                注意力头数
+        ffn_expansion_factor: FFN 扩张比
+        bias:                 卷积 bias
+        LayerNorm_type:       LayerNorm 类型
+
+    Inputs:
+        inp_img:        原始输入图像 (B, 1, H, W)，MIF 任务传 None
+        base_feature:   融合后的低频特征 (B, dim, H, W)
+        detail_feature: 融合后的高频特征 (B, dim, H, W)
+
+    Output:
+        fused:    融合图像 (B, 1, H, W)，值域 [0, 1]
+        out_enc:  中间特征 (B, dim, H, W)，训练时计算损失用
+    """
+    def __init__(
+        self,
+        out_channels: int = 1,
+        dim: int = 64,
+        num_blocks: list = [4, 4],
+        heads: list = [8, 8, 8],
+        ffn_expansion_factor: float = 2,
+        bias: bool = False,
+        LayerNorm_type: str = 'WithBias',
+    ):
+        super().__init__()
+
+        # base + detail 拼接后通道数翻倍，先压回 dim
+        self.reduce_channel = nn.Conv2d(dim * 2, dim, kernel_size=1, bias=bias)
+
+        # 精炼融合特征
+        self.encoder_level2 = nn.Sequential(*[
+            TransformerBlock(
+                dim=dim,
+                num_heads=heads[1],
+                ffn_expansion_factor=ffn_expansion_factor,
+                bias=bias,
+                LayerNorm_type=LayerNorm_type,
+            )
+            for _ in range(num_blocks[1])
+        ])
+
+        # 输出头：dim → dim//2 → out_channels
+        self.output = nn.Sequential(
+            nn.Conv2d(dim, dim // 2, kernel_size=3, padding=1, bias=bias),
+            nn.LeakyReLU(inplace=True),
+            nn.Conv2d(dim // 2, out_channels, kernel_size=3, padding=1, bias=bias),
+        )
+
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, inp_img, base_feature, detail_feature):
+        # 拼接双分支特征
+        feat = torch.cat([base_feature, detail_feature], dim=1)  # (B, dim*2, H, W)
+        feat = self.reduce_channel(feat)                          # (B, dim,   H, W)
+        feat = self.encoder_level2(feat)                          # 精炼
+
+        # 输出 + 跳跃连接
+        if inp_img is not None:
+            out = self.output(feat) + inp_img   # 只学残差
+        else:
+            out = self.output(feat)             # MIF：从零重建
+
+        return self.sigmoid(out), feat
