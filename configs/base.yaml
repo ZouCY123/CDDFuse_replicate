@@ -1,0 +1,21 @@
+data:
+  # 原始训练图像
+  # 使用绝对路径
+  ir_dir:  "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS_mini/train/ir"
+  vis_dir: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS_mini/train/vi"
+
+  # 预处理输出
+  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_mini_imgsize_128_stride_200.h5"
+
+  # patch 参数
+  patch_size: 128
+  stride:     200
+
+  # # 测试集（训练时用）
+  # test_dirs:
+  #   - name: "TNO"
+  #     ir: "../data/test/TNO/ir"
+  #     vi: "../data/test/TNO/vi"
+  #   - name: "RoadScene"
+  #     ir: "../data/test/RoadScene/ir"
+  #     vi: "../data/test/RoadScene/vi"
