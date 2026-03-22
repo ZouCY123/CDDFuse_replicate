@@ -9,6 +9,7 @@ from .norm import LayerNorm
 from .feedforward import FeedForward
 from .attention import Attention
 from .transformer import TransformerBlock
+from .embed import OverlapPatchEmbed
 
 
-__all__ = ['LayerNorm', 'FeedForward', 'Attention', 'TransformerBlock']
+__all__ = ['LayerNorm', 'FeedForward', 'Attention', 'TransformerBlock', 'OverlapPatchEmbed']
