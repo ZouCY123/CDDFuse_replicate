@@ -4,7 +4,7 @@
 
 einops==0.4.1
 h5py==3.10.0
-kornia==0.2.0
+kornia==0.8.2
 numpy==1.24.4
 opencv-python==4.9.0.80
 scikit-image==0.21.0

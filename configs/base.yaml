@@ -1,3 +1,6 @@
+experiment:
+  name: cddfuse_ivf
+
 data:
   # 原始训练图像
   # 使用绝对路径
@@ -11,11 +14,7 @@ data:
   patch_size: 128
   stride:     200
 
-  # # 测试集（训练时用）
-  # test_dirs:
-  #   - name: "TNO"
-  #     ir: "../data/test/TNO/ir"
-  #     vi: "../data/test/TNO/vi"
-  #   - name: "RoadScene"
-  #     ir: "../data/test/RoadScene/ir"
-  #     vi: "../data/test/RoadScene/vi"
+logging:
+  tensorboard: true
+  save_freq:   10
+  keep_last_n: 3

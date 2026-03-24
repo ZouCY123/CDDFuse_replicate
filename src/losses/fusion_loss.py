@@ -1,9 +1,11 @@
 """
-fusion_loss.py — 融合阶段损失函数
+fusion_loss.py — 融合损失（Phase II 使用）
 
-负责约束最终融合图像的质量，主要包括：
-1. 强度损失 (Intensity Loss)
-2. 纹理/梯度损失 (Gradient Loss)
+包含两部分：
+  1. 强度损失：融合图亮度 ≥ max(VIS, IR)
+  2. 梯度损失：融合图边缘 ≥ max(grad(VIS), grad(IR))
+
+总损失 = intensity_loss + 10 × gradient_loss
 """
 
 import torch
@@ -11,77 +13,95 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class Sobelxy(nn.Module):
+class SobelGradient(nn.Module):
     """
-    利用固定权重的卷积提取图像的 X 和 Y 方向梯度（绝对值之和）。
-    优化：使用 register_buffer 替代原版硬编码的 .cuda()，使张量能自动跟随模型设备。
+    用 Sobel 算子计算图像梯度幅值。
+
+    Sobel 是固定的卷积核，不需要训练，所以用
+    requires_grad=False 的 Parameter 存储。
+
+    Input / Output:  (B, 1, H, W) → (B, 1, H, W)
     """
+
     def __init__(self):
         super().__init__()
-        kernelx = [[-1.,  0.,  1.],
-                   [-2.,  0.,  2.],
-                   [-1.,  0.,  1.]]
-        kernely = [[ 1.,  2.,  1.],
-                   [ 0.,  0.,  0.],
-                   [-1., -2., -1.]]
-        
-        kernelx = torch.tensor(kernelx).unsqueeze(0).unsqueeze(0)  # (1, 1, 3, 3)
-        kernely = torch.tensor(kernely).unsqueeze(0).unsqueeze(0)  # (1, 1, 3, 3)
-        
-        # 注册为 buffer，不会作为模型参数被优化，但会保存在 state_dict 中并跟随 device
-        self.register_buffer('weightx', kernelx)
-        self.register_buffer('weighty', kernely)
 
-    def forward(self, x):
-        sobelx = F.conv2d(x, self.weightx, padding=1)
-        sobely = F.conv2d(x, self.weighty, padding=1)
-        return torch.abs(sobelx) + torch.abs(sobely)
+        # Sobel X 方向核：检测垂直边缘
+        kernel_x = torch.tensor([
+            [-1.,  0.,  1.],
+            [-2.,  0.,  2.],
+            [-1.,  0.,  1.],
+        ]).reshape(1, 1, 3, 3)
+
+        # Sobel Y 方向核：检测水平边缘
+        kernel_y = torch.tensor([
+            [ 1.,  2.,  1.],
+            [ 0.,  0.,  0.],
+            [-1., -2., -1.],
+        ]).reshape(1, 1, 3, 3)
+
+        # requires_grad=False：固定权重，不参与梯度计算
+        self.register_buffer('kernel_x', kernel_x)
+        self.register_buffer('kernel_y', kernel_y)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Args:
+            x: (B, 1, H, W)，单通道图像
+
+        Returns:
+            梯度幅值 |Gx| + |Gy|，shape (B, 1, H, W)
+        """
+        grad_x = F.conv2d(x, self.kernel_x, padding=1)
+        grad_y = F.conv2d(x, self.kernel_y, padding=1)
+        return torch.abs(grad_x) + torch.abs(grad_y)
 
 
 class FusionLoss(nn.Module):
     """
-    融合阶段的损失函数 (Phase II)
-    
-    计算公式:
-        L_total = L_in + 10 * L_grad
-        其中:
-        L_in (强度损失) = L1( max(Vis, IR), Fused )
-        L_grad (梯度损失) = L1( max(grad(Vis), grad(IR)), grad(Fused) )
-    """
-    def __init__(self):
-        super().__init__()
-        self.sobelconv = Sobelxy()
+    融合损失，Phase II 训练时使用。
 
-    def forward(self, image_vis, image_ir, generate_img):
-        """
-        Args:
-            image_vis:    可见光图像 (B, C, H, W)
-            image_ir:     红外图像 (B, 1, H, W)
-            generate_img: 融合后的图像 (B, 1, H, W)
-            
-        Returns:
-            loss_total: 总损失
-            loss_in:    强度损失
-            loss_grad:  梯度损失
-        """
-        # 取可见光的第一通道 (灰度图不受影响，RGB 图取第一个通道)
-        image_y = image_vis[:, :1, :, :]
-        
-        # 1. 强度损失 (Intensity Loss)
-        # 期望融合图像在像素级上保留源图像的最大强度
-        x_in_max = torch.max(image_y, image_ir)
-        loss_in = F.l1_loss(x_in_max, generate_img)
-        
-        # 2. 梯度/纹理损失 (Gradient Loss)
-        # 期望融合图像保留源图像最显著的边缘和纹理
-        y_grad = self.sobelconv(image_y)
-        ir_grad = self.sobelconv(image_ir)
-        generate_img_grad = self.sobelconv(generate_img)
-        
-        x_grad_joint = torch.max(y_grad, ir_grad)
-        loss_grad = F.l1_loss(x_grad_joint, generate_img_grad)
-        
-        # 3. 总损失 (官方权重: 梯度损失占优，权重为 10)
-        loss_total = loss_in + 10 * loss_grad
-        
-        return loss_total, loss_in, loss_grad
+    Args:
+        gradient_weight: 梯度损失的权重，默认 10
+
+    Input:
+        vis:    可见光图像，(B, 1, H, W)，值域 [0, 1]
+        ir:     红外图像，  (B, 1, H, W)，值域 [0, 1]
+        fused:  融合图像，  (B, 1, H, W)，值域 [0, 1]
+
+    Returns:
+        loss:            总损失（标量）
+        loss_intensity:  强度损失（监控用）
+        loss_gradient:   梯度损失（监控用）
+    """
+
+    def __init__(self, gradient_weight: float = 10.0):
+        super().__init__()
+        self.gradient_weight = gradient_weight
+        self.sobel = SobelGradient()
+
+    def forward(
+        self,
+        vis:   torch.Tensor,
+        ir:    torch.Tensor,
+        fused: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+
+        # ── 强度损失 ──────────────────────────────────────────
+        # 目标：融合图亮度不低于 VIS 和 IR 中较亮的那个
+        target_intensity = torch.max(vis, ir)
+        loss_intensity   = F.l1_loss(fused, target_intensity)
+
+        # ── 梯度损失 ──────────────────────────────────────────
+        # 目标：融合图边缘不弱于 VIS 和 IR 中边缘更清晰的那个
+        grad_vis   = self.sobel(vis)
+        grad_ir    = self.sobel(ir)
+        grad_fused = self.sobel(fused)
+
+        target_gradient = torch.max(grad_vis, grad_ir)
+        loss_gradient   = F.l1_loss(grad_fused, target_gradient)
+
+        # ── 合并 ──────────────────────────────────────────────
+        loss = loss_intensity + self.gradient_weight * loss_gradient
+
+        return loss, loss_intensity, loss_gradient

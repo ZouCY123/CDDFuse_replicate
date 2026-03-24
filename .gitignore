@@ -61,6 +61,7 @@ weights/
 results/
 outputs/
 predictions/
+experiments/
 
 # ===== Data artifacts =====
 # Keep this if datasets are downloaded/generated locally.
