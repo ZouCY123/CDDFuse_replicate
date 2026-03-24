@@ -1,11 +1,11 @@
 data:
   # 原始训练图像
   # 使用绝对路径
-  ir_dir:  "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS_mini/train/ir"
-  vis_dir: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS_mini/train/vi"
+  ir_dir:  "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS/train/ir"
+  vis_dir: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS/train/vi"
 
   # 预处理输出
-  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_mini_imgsize_128_stride_200.h5"
+  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_imgsize_128_stride_200.h5"
 
   # patch 参数
   patch_size: 128
