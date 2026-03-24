@@ -1,5 +1,7 @@
 experiment:
   name: cddfuse_ivf
+  seed: 42          
+  task: "IVF"
 
 data:
   # 原始训练图像
@@ -8,7 +10,7 @@ data:
   vis_dir: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS/train/vi"
 
   # 预处理输出
-  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_imgsize_128_stride_200.h5"
+  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_mini_imgsize_128_stride_200.h5"
 
   # patch 参数
   patch_size: 128
@@ -18,3 +20,27 @@ logging:
   tensorboard: true
   save_freq:   10
   keep_last_n: 3
+
+train:
+  num_epochs: 120          # 总训练轮数
+  epoch_gap:  40           # Phase I 结束的 epoch（0 ~ epoch_gap-1 是 Phase I）
+ 
+  batch_size: 8
+  lr:           1.0e-4     # 初始学习率
+  weight_decay: 0          # Adam 的 L2 正则
+ 
+  # 梯度裁剪（防止梯度爆炸）
+  clip_grad_norm: 0.01
+ 
+  # StepLR 调度器：每 optim_step 个 epoch，lr × optim_gamma
+  optim_step:  20
+  optim_gamma: 0.5
+  
+  # ── 损失函数权重 ──────────────────────────────────────────
+  # Phase I
+  coeff_mse_vis: 1.0       # VIS 重建损失权重
+  coeff_mse_ir:  1.0       # IR  重建损失权重
+  coeff_decomp:  2.0       # 特征分解损失权重（Phase I 和 II 都用）
+  coeff_tv:      5.0       # 梯度平滑损失权重（Phase I）
+ 
+  # Phase II（fusion_loss 内部已经包含 intensity + gradient，这里不再单独配）
