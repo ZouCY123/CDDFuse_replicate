@@ -27,7 +27,7 @@ data:
   vis_dir: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/MSRS/train/vi"
 
   # 预处理输出的 .h5 文件（dataset.py 的输入）
-  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_train_imgsize_128_stride_200.h5"
+  processed_h5: "/Users/zoucy/Documents/20_Research/02_PapersWithCode/02_CDDFuse_CVPR_2023/CDDFuse_replicate/data/processed/MSRS_imgsize_128_stride_200.h5"
  
   # patch 参数（影响 .h5 文件大小和训练数据量）
   patch_size: 128   # patch 边长，原论文用 128
