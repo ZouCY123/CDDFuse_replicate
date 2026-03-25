@@ -35,12 +35,15 @@ data:
  
   # 测试集列表（test.py 遍历这里的每个数据集）
   test_dirs:
-    - name: "TNO"
-      ir: "data/test/TNO/ir"
-      vi: "data/test/TNO/vi"
-    - name: "RoadScene"
-      ir: "data/test/RoadScene/ir"
-      vi: "data/test/RoadScene/vi"
+      - name: "MSRS_mini"
+        ir: "data/MSRS_mini/test/ir"
+        vi: "data/MSRS_mini/test/vi"
+    # - name: "TNO"
+    #   ir: "data/test/TNO/ir"
+    #   vi: "data/test/TNO/vi"
+    # - name: "RoadScene"
+    #   ir: "data/test/RoadScene/ir"
+    #   vi: "data/test/RoadScene/vi"
  
  
 # ----------------------------------------------------------------
