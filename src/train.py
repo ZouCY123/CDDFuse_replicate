@@ -176,7 +176,7 @@ def train(cfg):
         dataset,
         batch_size  = cfg.train.batch_size,
         shuffle     = True,
-        num_workers = 0,   # Mac 本地用 0，服务器改为 4
+        num_workers = 4,   # Mac 本地用 0，服务器改为 4
         pin_memory  = device == 'cuda',
     )
     print(f"[Data] {len(dataset)} patches, {len(loader)} batches/epoch")

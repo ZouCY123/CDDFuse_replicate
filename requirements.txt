@@ -1,6 +1,6 @@
 # torch 通过 scripts/setup.sh 单独安装，不列在这里
 einops==0.4.1
-kornia==0.2.0
+kornia==0.8.2
 numpy==1.21.5
 opencv-python==4.5.3.56
 scikit-image==0.19.2
