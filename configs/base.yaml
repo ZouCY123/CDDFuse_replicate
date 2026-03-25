@@ -35,9 +35,9 @@ data:
  
   # 测试集列表（test.py 遍历这里的每个数据集）
   test_dirs:
-      - name: "MSRS_mini"
-        ir: "data/MSRS_mini/test/ir"
-        vi: "data/MSRS_mini/test/vi"
+      - name: "MSRS"
+        ir: "data/MSRS/test/ir"
+        vi: "data/MSRS/test/vi"
     # - name: "TNO"
     #   ir: "data/test/TNO/ir"
     #   vi: "data/test/TNO/vi"
